@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<body>
 <h2 style="margin-top:50px;">Subsciptions</h2>
 <p>all current subscriptions</p>
 <p><a href="/signup" title="sign up">sign up</a></p>
@@ -7,7 +8,10 @@
 <p><a href="/" title="login">login</a></p>
 <p><a href="/new-subscription" title="new subscirption">new subsciption</a></p>
 <p><a href="/start" title="start">start page</a></p>
-
-
+<ul>
+    {% for sub in subscriptions %}
+        <li>{{ sub['subscription_name'] }}</li>
+    {% endfor %}
+</ul>
 </body>
 </html>

@@ -1,7 +1,7 @@
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session
 app = Flask(__name__)
-current_logged_in_user = None
+app.secret_key = 'tungtungtungsahur'
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -15,6 +15,7 @@ def login():
         ).fetchone()
         
         if user:
+            session['user_id'] = user['id']
             conn.close()
             return render_template('loginresult.html', username=user['username'])
         else:
@@ -28,19 +29,71 @@ def start_page():
     return render_template('start page.html')
 
 
-@app.route('/signup')
+@app.route('/signup', methods=['get', 'post'])
 def signup_page():
+    if request.method == 'POST':
+        new_user = request.form['username']
+        new_pass = request.form['password']
+        conn = sqlite3.connect('database_subscription_website.db')
+        conn.execute(
+            'insert into users (username, password) values (?, ?)',
+            (new_user, new_pass)
+        )
+        conn.commit()
+        conn.close()
+        return render_template('login page.html')
+        
     return render_template('sign up page.html')
 
 
 @app.route('/subscriptions')
 def subscriptions_page():
-    return render_template('subscriptions.html')
+    # 1. Check if user is logged in before accessing session
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    # 2. Run your database queries first
+    conn = sqlite3.connect('database_subscription_website.db')
+    conn.row_factory = sqlite3.Row
+    
+    user_subs = conn.execute(
+        'select subscription_name from subscriptions where user_id = ?', 
+        (session['user_id'],)
+    ).fetchall()
+    
+    all_db_ids = conn.execute('SELECT user_id FROM subscriptions').fetchall()
+    raw_ids = [row['user_id'] for row in all_db_ids]
+
+    conn.close()
+
+    # 3. Handle your conditional returns at the very end
+    if len(user_subs) == 0:
+        return f"logged in with user id: {session['user_id']} subscriptions table only contains user_id numbers {raw_ids}"
+        
+    return render_template('subscriptions.html', subscriptions=user_subs)
 
 
-@app.route('/new-subscription')
+@app.route('/new-subscription', methods=['get', 'post'])
 def new_subscription_page():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'post':
+        sub_name = request.form['subname']
+        sub_expiry = request.form['subexpiry']
+        current_user = session['user_id']
+        
+        conn = sqlite3.connect('database_subscription_website.db')
+        conn.execute(
+            'INSERT INTO subscriptions (subscription_name, expiry_date, user_id) VALUES (?, ?, ?)',
+            (sub_name, sub_expiry, current_user)
+        )
+        conn.commit()
+        conn.close()
+        return redirect(url_for('subscriptions_page'))
+
     return render_template('new subscription.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
