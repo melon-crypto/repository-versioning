@@ -48,52 +48,49 @@ def signup_page():
 
 @app.route('/subscriptions')
 def subscriptions_page():
-    # 1. Check if user is logged in before accessing session
     if 'user_id' not in session:
         return redirect(url_for('login'))
-
-    # 2. Run your database queries first
     conn = sqlite3.connect('database_subscription_website.db')
     conn.row_factory = sqlite3.Row
     
     user_subs = conn.execute(
-        'select subscription_name from subscriptions where user_id = ?', 
-        (session['user_id'],)
-    ).fetchall()
+       'select * from subscriptions where user_id = ?',
+       (session['user_id'],)
+   ).fetchall()
     
     all_db_ids = conn.execute('SELECT user_id FROM subscriptions').fetchall()
     raw_ids = [row['user_id'] for row in all_db_ids]
 
-    conn.close()
-
-    # 3. Handle your conditional returns at the very end
-    if len(user_subs) == 0:
-        return f"logged in with user id: {session['user_id']} subscriptions table only contains user_id numbers {raw_ids}"
-        
+    conn.close()   
     return render_template('subscriptions.html', subscriptions=user_subs)
 
 
-@app.route('/new-subscription', methods=['get', 'post'])
+@app.route('/new-subscription', methods=['GET', 'POST'])
 def new_subscription_page():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
-    if request.method == 'post':
+    if request.method == 'POST':
         sub_name = request.form['subname']
+        
+        
+        sub_cost = request.form.get('subcost', 0.0) 
         sub_expiry = request.form['subexpiry']
         current_user = session['user_id']
         
         conn = sqlite3.connect('database_subscription_website.db')
+        
+        
         conn.execute(
-            'INSERT INTO subscriptions (subscription_name, expiry_date, user_id) VALUES (?, ?, ?)',
-            (sub_name, sub_expiry, current_user)
+            'INSERT INTO subscriptions (subscription_name, cost, expiry_date, user_id) VALUES (?, ?, ?, ?)',
+            (sub_name, sub_cost, sub_expiry, current_user)
         )
         conn.commit()
         conn.close()
+        
+       
         return redirect(url_for('subscriptions_page'))
 
     return render_template('new subscription.html')
-
-
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <body>
 <html>
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 <h2 style="margin-top:50px;">login page</h2>
-<p>login bellow</p>
+<p>login below or sign up</p>
 
 <p><a href="/signup" title="sign up">sign up</a></p>
-<p><a href="/subscriptions" title="subscriptions">current subsciptions</a></p>
-<p><a href="/" title="login">login</a></p>
-<p><a href="/new-subscription" title="new subscirption">new subsciption</a></p>
-<p><a href="/start" title="start">start page</a></p>
 
 <form action="/" method="POST">
   <label for="username">username:</label><br>

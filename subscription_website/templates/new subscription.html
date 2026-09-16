@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 <h2 style="margin-top:50px;">new subsciption</h2>
-<p>provide details fo new subsciption bellow</p>
+<p>provide details for new subsciption below</p>
 <body>
-<p><a href="/signup" title="sign up">sign up</a></p>
 <p><a href="/subscriptions" title="subscriptions">current subsciptions</a></p>
-<p><a href="/" title="login">login</a></p>
+<p><a href="/" title="login">logout</a></p>
 <p><a href="/new-subscription" title="new subscirption">new subsciption</a></p>
-<p><a href="/start" title="start">start page</a></p>
 
 
 <form action="/new-subscription" method="post">
   <label for="subname">subsciption name:</label><br>
   <input type="text" id="subname" name="subname" required><br>
+  <label for="subcost">subscription cost ($):</label><br>
+  <input type="number" id="subcost" name="subcost" step="0.01" min="0" placeholder="0.00" required><br>
   <label for="subexpiry">subscription expiry date:</label><br>
-  <input type="text" id="subexpiry" name="subexpiry" required>
+  <input type="text" id="subexpiry" name="subexpiry" required><br><br>
   <input type="submit" value="submit">
 </form>
 
